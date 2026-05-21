@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # ===================== AList - 云盘聚合 =====================
+  alist:
+    image: xhofe/alist:latest
+    container_name: media-alist
+    restart: always
+    ports:
+      - "5244:5244"
+    volumes:
+      - alist-data:/opt/alist/data
+    environment:
+      - PUID=0
+      - PGID=0
+      - UMASK=022
+      - TZ=Asia/Shanghai
+    networks:
+      - media-net
+
+  # ===================== Jellyfin - 媒体服务器 =====================
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: media-jellyfin
+    restart: always
+    ports:
+      - "8096:8096"
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - E:/:/media/local:ro
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - media-net
+
+volumes:
+  alist-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: G:/docker-data/alist
+  jellyfin-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: G:/docker-data/jellyfin/config
+  jellyfin-cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: G:/docker-data/jellyfin/cache
+
+networks:
+  media-net:
+    driver: bridge
